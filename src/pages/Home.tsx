@@ -1,10 +1,11 @@
+import UserResults from "../components/users/UserResults"
 
-
-function Home() : JSX.Element {
+function Home(): JSX.Element {
   return (
-    <div>
-      home
-    </div>
+    <>
+    {/*search component*/}
+      <UserResults/>
+    </>
   )
 }
 
