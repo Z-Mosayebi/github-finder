@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useContext } from "react";
 import Spinner from "../layout/Spinner";
 import UserItem from "./UserItem";
+import GithubContext from "../../context/github/GithubContext";
 
  type GithubUser = {
   id: number;
@@ -14,33 +15,13 @@ import UserItem from "./UserItem";
 
 
 function UserResults(): JSX.Element {
-  const [users, setUsers] = useState<GithubUser[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const {users, loading, fetchUsers} = useContext (GithubContext)
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async (): Promise<void> => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_GITHUB_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
-          Accept: "application/vnd.github+json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`GitHub error ${response.status}`);
-      }
-
-      const data = (await response.json()) as GithubUser[];
-      setUsers(data);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  
 
   if (!loading) {
     return (
