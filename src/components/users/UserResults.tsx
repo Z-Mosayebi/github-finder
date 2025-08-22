@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import Spinner from "../layout/Spinner";
+import UserItem from "./UserItem";
 
-type GithubUser = {
+ type GithubUser = {
   id: number;
   login: string;
   avatar_url: string;
   html_url: string;
 };
+
+
+
+
 
 function UserResults(): JSX.Element {
   const [users, setUsers] = useState<GithubUser[]>([]);
@@ -29,25 +34,25 @@ function UserResults(): JSX.Element {
         throw new Error(`GitHub error ${response.status}`);
       }
 
-         const data = (await response.json()) as GithubUser[];
+      const data = (await response.json()) as GithubUser[];
       setUsers(data);
       setLoading(false);
     } catch (err) {
       console.error(err);
-    } 
+    }
   };
 
-
-  if(!loading){
-  return <div className="grid grid-cols-1 gap-8 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2">
-    {users.map((user)=>(
-        <h3  key={user.id}>{user.login}</h3>
-    ))}
-  </div>;
-
-} else {
-   return <Spinner/>
-}
+  if (!loading) {
+    return (
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2">
+        {users.map((user) => (
+          <UserItem key={user.id} user = {user}/>
+        ))}
+      </div>
+    );
+  } else {
+    return <Spinner />;
+  }
 }
 
 export default UserResults;
