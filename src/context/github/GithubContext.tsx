@@ -1,24 +1,46 @@
-import { createContext, useState } from "react";
+import { createContext, useReducer, ReactNode } from "react";
+import githubReducer from "./GithubReducer";
 
+export interface GithubState {
+  users: GithubUser[]
+  loading: boolean
+}
+
+
+// User type 
 export type GithubUser = {
   id: number
   login: string
   avatar_url: string
   html_url: string
 }
-
-const GithubContext = createContext<GithubContextType | undefined>(undefined)
-
-const GITHUB_URL = import.meta.env.VITE_GITHUB_URL;
-const GUTHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
-
-type GithubProviderProps = {
+// Props for provider
+interface GithubProviderProps {
   children: ReactNode
 }
+// Context type
+interface GithubContextType {
+  users: GithubUser[]
+  loading: boolean
+  fetchUsers: () => Promise<void>
+}
 
-export const GithubProvider = ({ children }: GithubProviderProps): JSX.Element => {
-  const [users, setUsers] = useState<GithubUser[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+// Create context
+const GithubContext = createContext<GithubContextType | undefined>(undefined)
+
+
+
+
+
+
+
+export const GithubProvider = ({ children }: GithubProviderProps) => {
+  const initialState: GithubState = {
+    users:[],
+    loading: true
+  }
+
+const [state, dispatch] = useReducer(githubReducer, initialState)
 
   const fetchUsers = async (): Promise<void> => {
     try {
@@ -34,19 +56,26 @@ export const GithubProvider = ({ children }: GithubProviderProps): JSX.Element =
       }
 
       const data = (await response.json()) as GithubUser[];
-      setUsers(data);
-      setLoading(false);
+     
+      dispatch({
+        type:'GET_USERS',
+        payload:data
+      })
+
     } catch (err) {
       console.error(err);
     }
   };
-  return <GithubContext.Provider value={{
-    users,
-    loading,
-    fetchUsers
-  }}>
+ return (
+  <GithubContext.Provider
+    value={{
+      users: state.users,
+      loading: state.loading,
+      fetchUsers,
+    }}
+  >
     {children}
   </GithubContext.Provider>
-};
+)};
 
 export default GithubContext
